@@ -1,5 +1,4 @@
 {
-
   open Lexing
   open Kawaparser
 
@@ -67,6 +66,8 @@ rule token = parse
   | "&&" { AND}
   | "."  { POINT}
   | ","  { COMMA}
+  | "%"  { MOD}
+  | "!"  { NOT}
 
   | _    { raise (Error ("unknown character : " ^ lexeme lexbuf)) }
   | eof  { EOF }
