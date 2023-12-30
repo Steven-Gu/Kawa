@@ -35,32 +35,35 @@ instruction:
 ;
 
 expression:
-| n=INT { Int(n) }
+| n=INT { Cst(n) }
 | TRUE {Boolean(true)}
 | FALSE {Boolean(false)}
 | THIS {Expression(this)}
-| mem { }
-| uop e=expr {  }
-| e1=expr bop e2=expr {  }
-| LPAREN expr RPAREN {  }
+| mem {mem}
+| u = uop e=expr {e %prec u}
+| e1=expr op = bop e2=expr {bop(op,e1,e2)}
+| LPAREN e = expr RPAREN { e }
 | NEW IDENT { /* New object */ }
 | NEW IDENT LPAREN opt_exprs RPAREN { /* New object with parameters */ }
 | expr DOT IDENT LPAREN opt_exprs RPAREN { /* Method call */ }
 ;
 
 uop:
-| MINUS { }
-| NOT   { }
+| MINUS { - }
+| NOT   { ! }
 ;
 
 bop:
-| PLUS { }
-| MINUS { }
-| MUL{ }
-| DIV{ }
-| EQUAL{ }
-| NEQ {}
-| LT {}
-| LEQ {}
-| AND {}
-| OR {}
+| PLUS { + }
+| MINUS { - }
+| MUL{ * }
+| DIV{ / }
+| EQUAL{ == }
+| NEQ { != }
+| LT { < }
+| LEQ { > }
+| AND { && }
+| OR { || }
+;
+
+mem:
