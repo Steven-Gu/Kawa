@@ -21,6 +21,53 @@ let typecheck_prog p =
 
   and type_expr e tenv = match e with
     | Int _  -> TInt
+    | Bool _ -> TBool
+    | Unop (unop, e')  -> 
+      begin
+      let type' = type_expr e' tenv in
+      match unop with
+      |Opp -> begin 
+        match type' with 
+        |TInt -> TInt
+        | _ -> failwith "type error"
+      end
+      |Not ->begin 
+        match type' with 
+        |TBool -> TBool
+        | _ -> failwith "type error"
+      end
+    end
+    | Binop(binop, e1, e2) -> 
+      begin
+        let type1 = type_expr e1 tenv in
+        let type2 = type_expr e2 tenv in
+      match binop with
+      |Add | Sub | Mul | Div | Rem -> begin
+        match type1,type2 with
+        | TInt, TInt -> TInt
+        | _,_ -> failwith "type error"
+      end
+      |Lt  | Le  | Gt | Ge -> begin
+        match type1,type2 with
+        | TBool,TBool -> TBool
+        | _,_ -> failwith "type error"
+      end
+      |Eq | Neq -> begin
+        if type1 = type2 then TBool
+        else failwith "type error"
+      end
+      |And | Or -> begin
+        match type1,type2 with
+        | TBool,TBool -> TBool
+        | _,_ -> failwith "type error"
+      end
+    
+    end
+    | Get m -> type_mem_access m tenv
+    | This -> TClass
+    | New c -> TClass c
+    | NewCstr _ -> TInt
+    | MethCall _ -> TInt
     | _ -> failwith "case not implemented in type_expr"
 
   and type_mem_access m tenv = match m with
