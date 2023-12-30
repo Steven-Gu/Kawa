@@ -68,6 +68,7 @@ rule token = parse
   | ","  { COMMA}
   | "%"  { MOD}
   | "!"  { NOT}
+  | "%"  { REM}
 
   | _    { raise (Error ("unknown character : " ^ lexeme lexbuf)) }
   | eof  { EOF }

@@ -17,6 +17,8 @@
 %token VOID
 %token RETURN
 %token EOF
+%left PlUS MINUS
+%left MUL DIV REM
 
 %start program
 %type <Kawa.program> program
@@ -35,10 +37,10 @@ instruction:
 ;
 
 expression:
-| n=INT { Cst(n) }
-| TRUE {Boolean(true)}
-| FALSE {Boolean(false)}
-| THIS {Expression(this)}
+| n=INT { n }
+| TRUE = bool {true}
+| FALSE = bool {false}
+| THIS {this}
 | mem {mem}
 | u = uop e=expr {e %prec u}
 | e1=expr op = bop e2=expr {bop(op,e1,e2)}
@@ -64,6 +66,6 @@ bop:
 | LEQ { > }
 | AND { && }
 | OR { || }
+| REM{%}
 ;
 
-mem:
