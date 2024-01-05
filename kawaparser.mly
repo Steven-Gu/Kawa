@@ -27,6 +27,9 @@
 
 %%
 
+type:
+|
+
 program:
 | MAIN BEGIN main=list(instruction) END EOF
     { {classes=[]; globals=[]; main} }
@@ -34,6 +37,14 @@ program:
 
 instruction:
 | PRINT LPAR e=expression RPAR SEMI { Print(e) }
+| mem = mem EQ e = expr SEMI { Assign(mem, e) }
+| IF LPAR cond = expr RPAR LBRACE true_branch = list(instr) RBRACE
+      ELSE LBRACE false_branch = list(instr) RBRACE
+    { If(cond, true_branch, false_branch) }
+| WHILE LPAR cond = expr RPAR LBRACE body = list(instr) RBRACE
+    { While(cond, body) }
+| RETURN e = expr SEMI { Return(e) }
+| e = expr SEMI { Expr(e) }
 ;
 
 expression:
