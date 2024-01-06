@@ -13,7 +13,7 @@ module Env = struct
     current_class: string option;
   }
 
-  let empty = { classes = ClassMap.empty; types = TypeMap.empty; current_class = None}
+  let empty = { classes = ClassMap.empty; types = TypeMap.empty; current_class = None }
 
   let add_class class_name class_def env =
     { env with classes = ClassMap.add class_name class_def env.classes }
@@ -47,18 +47,19 @@ let add_env l tenv =
 let get_class_def class_name tenv =
   match Env.find_class class_name tenv with
   | Some class_def -> class_def
-  | None -> failwith ("Class not found: " ^ class_name)
+  | None -> error ("Class not found: " ^ class_name)
 
 let get_method_def class_def method_name =
   try
     let methods = class_def.methods in
     List.find (fun m -> m.method_name = method_name) methods
   with Not_found ->
-    failwith ("Method not found: " ^ method_name ^ " in class " ^ class_def.class_name)
+    error ("Method not found: " ^ method_name ^ " in class " ^ class_def.class_name)
 
 let rec check e typ tenv =
   let typ_e = type_expr e tenv in
-  if typ_e <> typ then error (Printf.sprintf "Expected %s, got %s" (typ_to_string typ) (typ_to_string typ_e))
+  if typ_e <> typ then
+    error (Printf.sprintf "Expected %s, got %s" (typ_to_string typ) (typ_to_string typ_e))
 
 and type_expr e tenv = match e with
   | Int _  -> TInt
@@ -184,6 +185,7 @@ and check_mdef method_def tenv =
   check_seq method_def.code method_def.return tenv''
 
 let typecheck_prog p =
-  let tenv = add_env p.globals Env.empty in
-  List.iter (fun c -> check_class c tenv) p.classes;
-  check_seq p.main TVoid tenv
+  let tenv = List.fold_left (fun env c -> Env.add_class c.class_name c env) Env.empty p.classes in
+  let tenv' = add_env p.globals tenv in
+  check_seq p.main TVoid tenv'
+
