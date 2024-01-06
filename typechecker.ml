@@ -94,7 +94,11 @@ and type_expr e tenv = match e with
     (match Env.get_current_class tenv with
       | Some class_name -> TClass class_name
       | None -> error "Cannot use This outside of a class context")
-  | New c -> TClass c
+  | New c -> 
+    if Env.find_class c tenv = None then
+      error ("Class not found: " ^ c)
+    else
+      TClass c
   | NewCstr (class_name, args) ->
     let class_def =
       try
