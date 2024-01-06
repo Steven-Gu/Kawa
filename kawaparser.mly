@@ -25,9 +25,14 @@
 
 %start program
 %type <Kawa.program> program
-%type <Uop> uop
-%type <Bop> bop
-
+%type <Kawa.Unop> uop
+%type <Kawa.Binop> bop
+%type <Kawa.expr> expression
+%type <Kawa.typ> typ
+%type <Kawa.mem_access> mem
+%type <Kawa.instr> instruction
+%type <Kawa.seq> seq
+%type <Kawa.class_def> class_def
 %%
 
 
