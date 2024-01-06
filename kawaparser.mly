@@ -48,11 +48,11 @@ var_decls:
 ;
 
 var_decl:
-| VAR type=type IDENT SEMI
-  { ($3, $2) }
+| VAR typ=typ IDENT SEMI
+  { ($3, typ) }
 ;
 
-type:
+typ:
 | INT
   { TInt }
 | BOOL
@@ -76,8 +76,8 @@ instruction:
 
 expression:
 | n=INT { n }
-| TRUE = bool {true}
-| FALSE = bool {false}
+| TRUE {Bool(true)}
+| FALSE {Bool(false)}
 | THIS {This}
 | mem {mem}
 | u = uop e=expr {e %prec u}
@@ -113,17 +113,19 @@ uop:
 ;
 
 bop:
-| PLUS { + }
-| MINUS { - }
-| MUL{ * }
-| DIV{ / }
-| EQUAL{ == }
-| NEQ { != }
-| LT { < }
-| LEQ { > }
-| AND { && }
-| OR { || }
-| REM{%}
+| PLUS { Plus }
+| MINUS { Minus }
+| MUL{ Mul }
+| DIV{ Div }
+| EQUAL{ Eq }
+| NEQ { Neq }
+| LT { Lt }
+| LEQ { Le }
+| AND { And }
+| OR { Or }
+| GT { Gt }
+| GEQ { Geq }
+| REM{ Rem }
 ;
 
 class_def:
@@ -153,8 +155,8 @@ attr_decls:
 ;
 
 attr_decl:
-| ATTR type=type IDENT SEMI
-  { ($3, $2) }
+| ATTR typ=typ IDENT SEMI
+  { ($3, typ) }
 ;
 
 opt_method_defs:
@@ -172,8 +174,8 @@ method_defs:
 ;
 
 method_def:
-| METHOD type=type IDENT LPAR params_opt=opt_params RPAR BEGIN var_decls=opt_var_decls seq=seq RETURN expr=expr SEMI END
-  { { method_name = $3; return = $2; params = params_opt; locals = var_decls; code = seq @ [Return(expr)] } }
+| METHOD typ=typ IDENT LPAR params_opt=opt_params RPAR BEGIN var_decls=opt_var_decls seq=seq RETURN expr=expr SEMI END
+  { { method_name = $3; return = typ; params = params_opt; locals = var_decls; code = seq @ [Return(expr)] } }
 ;
 
 opt_params:
@@ -184,8 +186,8 @@ opt_params:
 ;
 
 params:
-| type=type IDENT
-  { [($2, $1)] }
-| type=type IDENT COMMA params
-  { ($2, $1) :: $4 }
+| typ=typ IDENT
+  { [($2, typ)] }
+| typ=typ IDENT COMMA params
+  { ($2, typ) :: $4 }
 ;

@@ -64,7 +64,7 @@ rule token = parse
   | ">=" { GEQ}
   | "||" { OR}
   | "&&" { AND}
-  | "."  { POINT}
+  | "."  { DOT}
   | ","  { COMMA}
   | "%"  { MOD}
   | "!"  { NOT}
