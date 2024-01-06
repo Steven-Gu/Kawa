@@ -20,7 +20,7 @@
 %token LBRACE RBRACE
 %token ASSIGN PLUS MINUS MUL DIV REM EQUAL NEQ LT LEQ GT GEQ
 %token OR AND DOT COMMA NOT
-%left PlUS MINUS
+%left PLUS MINUS
 %left MUL DIV REM
 
 %start program
@@ -33,13 +33,16 @@
 %type <Kawa.instr> instruction
 %type <Kawa.seq> seq
 %type <Kawa.class_def> class_def
+%type <Kawa.expr list> exprs
+%type <Kawa.expr list> opt_exprs
 %%
 
 
 program:
-| MAIN BEGIN main=list(instruction) END EOF
-    { {classes=[]; globals=[]; main} }
+| MAIN BEGIN globals = opt_var_decls classes = opt_classes main=seq END EOF
+    { {classes=classes; globals=globals; main} }
 ;
+
 opt_var_decls:
 | /* Empty */
   { [] }
@@ -68,21 +71,37 @@ typ:
   { TClass($1) }
 | VOID
   { TVoid }
+;
 
 mem:
 | IDENT
   { Var($1) }
 | expression DOT IDENT
   { Field($1, $3) }
+;
 
+
+opt_classes:
+| /* Empty */
+  { [] }
+| classes
+  { classes }
+;
+
+classes:
+| class_def
+  { [$1] }
+| class_def classes
+  { $1 :: $2 }
+;
 
 instruction:
 | PRINT LPAR e=expression RPAR SEMI { Print(e) }
 | mem = mem ASSIGN e = expression SEMI { Assign(mem, e) }
-| IF LPAR cond = expression RPAR LBRACE true_branch = list(instruction) RBRACE
-      ELSE LBRACE false_branch = list(instruction) RBRACE
+| IF LPAR cond = expression RPAR LBRACE true_branch = seq RBRACE
+      ELSE LBRACE false_branch = seq RBRACE
     { If(cond, true_branch, false_branch) }
-| WHILE LPAR cond = expression RPAR LBRACE body = list(instruction) RBRACE
+| WHILE LPAR cond = expression RPAR LBRACE body = seq RBRACE
     { While(cond, body) }
 | RETURN e = expression SEMI { Return(e) }
 | e = expression SEMI { Expr(e) }
@@ -122,13 +141,13 @@ exprs:
 ;
 
 uop:
-| MINUS { - }
-| NOT   { ! }
+| MINUS { Opp }
+| NOT   { Not }
 ;
 
 bop:
-| PLUS { Plus }
-| MINUS { Minus }
+| PLUS { Add }
+| MINUS { Sub }
 | MUL{ Mul }
 | DIV{ Div }
 | EQUAL{ Eq }
