@@ -12,12 +12,14 @@
 %token LPAR RPAR BEGIN END SEMI
 %token PRINT
 %token TRUE FALSE
-%token VAR ATTR METHOD CLASS NEW THIS
+%token VAR ATTR METHOD CLASS NEW THIS EXTENDS
 %token IF ELSE WHILE
 %token VOID
 %token RETURN
 %token EOF
 %token LBRACE RBRACE
+%token ASSIGN PLUS MINUS MUL DIV REM EQUAL NEQ LT LEQ GT GEQ
+%token OR AND DOT COMMA NOT
 %left PlUS MINUS
 %left MUL DIV REM
 
@@ -62,16 +64,23 @@ typ:
 | VOID
   { TVoid }
 
+mem:
+| IDENT
+  { Var($1) }
+| expression DOT IDENT
+  { Field($1, $3) }
+
+
 instruction:
 | PRINT LPAR e=expression RPAR SEMI { Print(e) }
-| mem = mem EQ e = expr SEMI { Assign(mem, e) }
-| IF LPAR cond = expr RPAR LBRACE true_branch = list(instr) RBRACE
-      ELSE LBRACE false_branch = list(instr) RBRACE
+| mem = mem ASSIGN e = expression SEMI { Assign(mem, e) }
+| IF LPAR cond = expression RPAR LBRACE true_branch = list(instruction) RBRACE
+      ELSE LBRACE false_branch = list(instruction) RBRACE
     { If(cond, true_branch, false_branch) }
-| WHILE LPAR cond = expr RPAR LBRACE body = list(instr) RBRACE
+| WHILE LPAR cond = expression RPAR LBRACE body = list(instruction) RBRACE
     { While(cond, body) }
-| RETURN e = expr SEMI { Return(e) }
-| e = expr SEMI { Expr(e) }
+| RETURN e = expression SEMI { Return(e) }
+| e = expression SEMI { Expr(e) }
 ;
 
 expression:
@@ -80,16 +89,16 @@ expression:
 | FALSE {Bool(false)}
 | THIS {This}
 | mem {mem}
-| u = uop e=expr {e %prec u}
-| e1=expr op = bop e2=expr {bop(op,e1,e2)}
-| LPAREN e = expr RPAREN { e }
+| u = uop e=expression {e %prec u}
+| e1=expression op = bop e2=expression {bop(op,e1,e2)}
+| LPAR e = expression RPAR { e }
 | NEW IDENT
   { New($2) }
 | NEW IDENT LPAR exprs=opt_exprs RPAR
   { NewCstr($2, exprs) }
-| expr=expr DOT IDENT
+| expr=expression DOT IDENT
   { MethCall(expr, $3, []) }
-| expr=expr DOT IDENT LPAR exprs=opt_exprs RPAR
+| expr=expression DOT IDENT LPAR exprs=opt_exprs RPAR
   { MethCall(expr, $3, exprs) }
 ;
 
@@ -101,9 +110,9 @@ opt_exprs:
 ;
 
 exprs:
-| expr=expr
+| expr=expression
   { [expr] }
-| expr=expr COMMA exprs
+| expr=expression COMMA exprs
   { expr :: exprs }
 ;
 
@@ -174,8 +183,15 @@ method_defs:
 ;
 
 method_def:
-| METHOD typ=typ IDENT LPAR params_opt=opt_params RPAR BEGIN var_decls=opt_var_decls seq=seq RETURN expr=expr SEMI END
+| METHOD typ=typ IDENT LPAR params_opt=opt_params RPAR BEGIN var_decls=opt_var_decls seq=seq RETURN expr=expression SEMI END
   { { method_name = $3; return = typ; params = params_opt; locals = var_decls; code = seq @ [Return(expr)] } }
+;
+
+seq:
+| /* Empty */
+  { [] }
+| instruction SEMI seq
+  { $1 :: $3 }
 ;
 
 opt_params:

@@ -24,6 +24,7 @@
       "int",        int;
       "bool",       bool;
       "void",       VOID;
+      "extends",    EXTENDS;
     ] ;
   fun s ->
     try  Hashtbl.find h s
