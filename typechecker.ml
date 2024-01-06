@@ -187,5 +187,6 @@ and check_mdef method_def tenv =
 let typecheck_prog p =
   let tenv = List.fold_left (fun env c -> Env.add_class c.class_name c env) Env.empty p.classes in
   let tenv' = add_env p.globals tenv in
+  List.iter (fun c -> check_class c tenv') p.classes;
   check_seq p.main TVoid tenv'
 
