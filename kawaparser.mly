@@ -35,6 +35,21 @@
 %type <Kawa.class_def> class_def
 %type <Kawa.expr list> exprs
 %type <Kawa.expr list> opt_exprs
+
+%type <(string * Kawa.typ)> attr_decl
+%type <(string * Kawa.typ) list> attr_decls
+%type <Kawa.class_def list> classes
+%type <((string * Kawa.typ) list) * (Kawa.method_def list)> class_body
+%type <Kawa.method_def> method_def
+%type <Kawa.method_def list> method_defs
+%type <(string * Kawa.typ) list option> opt_attr_decls
+%type <Kawa.class_def list option> opt_classes
+%type <Kawa.method_def list option> opt_method_defs
+%type <(string * Kawa.typ) list option> opt_params
+%type <(string * Kawa.typ) list option> opt_var_decls
+%type <(string * Kawa.typ) list> params
+%type <(string * Kawa.typ)> var_decl
+%type <(string * Kawa.typ) list> var_decls
 %%
 
 
