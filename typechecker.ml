@@ -177,7 +177,15 @@ and check_instr i ret tenv = match i with
   | Expr e -> ignore(type_expr e tenv)
 
 and check_seq s ret tenv =
-  List.iter (fun i -> check_instr i ret tenv) s
+  let has_return = ref false in
+  List.iter (fun i -> 
+    check_instr i ret tenv;
+    match i with
+    | Return _ -> has_return := true
+    | _ -> ()
+    ) s;
+  if not !has_return && ret <> TVoid then
+    error "Missing return statement in a function that expects a return value"
 
 and check_class class_def tenv =
   let tenv' = Env.set_current_class class_def.class_name tenv in
