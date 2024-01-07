@@ -1,0 +1,65 @@
+type token =
+    WHILE
+  | VOID
+  | VAR
+  | TRUE
+  | THIS
+  | SEMI
+  | RPAR
+  | RETURN
+  | REM
+  | RBRACE
+  | PRINT
+  | PLUS
+  | OR
+  | NOT
+  | NEW
+  | NEQ
+  | MUL
+  | MINUS
+  | METHOD
+  | MAIN
+  | LT
+  | LPAR
+  | LEQ
+  | LBRACE
+  | INT of int
+  | IF
+  | IDENT of string
+  | GT
+  | GEQ
+  | FALSE
+  | EXTENDS
+  | EQUAL
+  | EOF
+  | END
+  | ELSE
+  | DOT
+  | DIV
+  | COMMA
+  | CLASS
+  | BOOL of bool
+  | BEGIN
+  | ATTR
+  | ASSIGN
+  | AND
+val menhir_begin_marker : int
+val xv_var_decls : (string * Kawa.typ) list
+val xv_var_decl : string * Kawa.typ
+val xv_uop : Kawa.unop
+val xv_typ : Kawa.typ
+val xv_seq : Kawa.seq
+val xv_program : Kawa.program
+val xv_params : (string * Kawa.typ) list
+val xv_method_defs : Kawa.method_def list
+val xv_method_def : Kawa.method_def
+val xv_mem : Kawa.mem_access
+val xv_instruction : Kawa.instr
+val xv_exprs : Kawa.expr list
+val xv_expression : Kawa.expr
+val xv_classes : Kawa.class_def list
+val xv_class_def : Kawa.class_def
+val xv_bop : Kawa.binop
+val xv_attr_decls : (string * Kawa.typ) list
+val xv_attr_decl : string * Kawa.typ
+val menhir_end_marker : int

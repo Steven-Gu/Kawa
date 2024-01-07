@@ -1,0 +1,36 @@
+# dune build
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Shared cache location: /Users/hongfeizhang/.cache/dune/db
+# Workspace root: /Users/hongfeizhang/compilation/Kawa
+# Auto-detected concurrency: 8
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; installed_env =
+#      map
+#        { "INSIDE_DUNE" :
+#            "/Users/hongfeizhang/compilation/Kawa/_build/default"
+#        ; "OCAML_COLOR" : "always"
+#        ; "OPAMCOLOR" : "always"
+#        }
+#  ; instrument_with = []
+#  }
+$ /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -config > /var/folders/bg/gl8hn4qd6r72cd2k6g21wrg40000gn/T/dune_2f8796_output
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamllex -q -o kawalexer.ml kawalexer.mll)
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamldep.opt -modules -impl kawalexer.ml) > _build/default/.kawai.eobjs/dune__exe__Kawalexer.impl.d
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -g -bin-annot -I .kawai.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .kawai.eobjs/byte/dune__exe__Interpreter.cmo -c -impl interpreter.ml)
+> File "interpreter.ml", line 22, characters 60-67:
+> 22 |     let method_def = List.find (fun m -> m.method_name = f) methods in
+>                                                                  ^^^^^^^
+> Error: Unbound value methods
+[2]
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -g -bin-annot -I .kawai.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .kawai.eobjs/byte/dune__exe__Kawalexer.cmo -c -impl kawalexer.ml)
+> File "kawalexer.mll", line 24, characters 20-23:
+> Error: The constructor INT expects 1 argument(s),
+>        but is applied here to 0 argument(s)
+[2]
