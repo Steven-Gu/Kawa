@@ -8,6 +8,7 @@
 %token <int> INT
 %token <string> IDENT
 %token <bool> BOOL
+%token INT_TYPE BOOL_TYPE
 %token MAIN
 %token LPAR RPAR BEGIN END SEMI
 %token PRINT
@@ -18,7 +19,7 @@
 %token RETURN
 %token EOF
 %token LBRACE RBRACE
-%token ASSIGN PLUS MINUS MUL DIV REM EQUAL NEQ LT LEQ GT GEQ
+%token ASSIGN PLUS MINUS MUL DIV REM EQUAL NEQ LT LEQ GT GEQ MOD
 %token OR AND DOT COMMA NOT
 %left PLUS MINUS
 %left MUL DIV REM
@@ -78,9 +79,9 @@ var_decls:
 ;*)
 
 typ:
-| INT
+| INT_TYPE
   { TInt }
-| BOOL
+| BOOL_TYPE
   { TBool }
 | IDENT
   { TClass($1) }
@@ -135,8 +136,8 @@ expression:
   { New($2) }
 | NEW IDENT LPAR exprs=exprs RPAR
   { NewCstr($2, exprs) }
-| expr=expression DOT IDENT
-  { MethCall(expr, $3, []) }
+(*| expr=expression DOT IDENT
+  { MethCall(expr, $3, []) }*)
 | expr=expression DOT IDENT LPAR exprs=exprs RPAR
   { MethCall(expr, $3, exprs) }
 ;

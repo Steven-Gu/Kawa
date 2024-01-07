@@ -21,8 +21,8 @@
       "else",       ELSE;
       "while",      WHILE;
       "return",     RETURN;
-      "int",        INT;
-      "bool",       bool;
+      "int",        INT_TYPE;
+      "bool",       BOOL_TYPE;
       "void",       VOID;
       "extends",    EXTENDS;
     ] ;

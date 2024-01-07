@@ -19,6 +19,7 @@ type token =
   | NEW
   | NEQ
   | MUL
+  | MOD
   | MINUS
   | METHOD
   | MAIN
@@ -26,6 +27,7 @@ type token =
   | LPAR
   | LEQ
   | LBRACE
+  | INT_TYPE
   | INT of (int)
   | IF
   | IDENT of (string)
@@ -41,6 +43,7 @@ type token =
   | DIV
   | COMMA
   | CLASS
+  | BOOL_TYPE
   | BOOL of (bool)
   | BEGIN
   | ATTR
