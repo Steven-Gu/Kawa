@@ -1,87 +1,4 @@
 
-** Conflict (reduce/reduce) in state 154.
-** Token involved: MAIN
-** This state is reached from program after reading:
-
-var_decls class_def
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF // lookahead token appears
-          (?)
-
-** In state 154, looking ahead at MAIN, reducing production
-** classes ->
-** is permitted because of the following sub-derivation:
-
-class_def classes // lookahead token is inherited
-          . 
-
-** In state 154, looking ahead at MAIN, reducing production
-** classes -> class_def
-** is permitted because of the following sub-derivation:
-
-class_def . 
-
-** Conflict (reduce/reduce) in state 142.
-** Tokens involved: METHOD END
-** The following explanations concentrate on token METHOD.
-** This state is reached from program after reading:
-
-var_decls CLASS IDENT BEGIN attr_decl
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-          class_def 
-          CLASS IDENT BEGIN attr_decls method_defs END // lookahead token appears because method_defs can begin with METHOD
-                            (?)
-
-** In state 142, looking ahead at METHOD, reducing production
-** attr_decls ->
-** is permitted because of the following sub-derivation:
-
-attr_decl attr_decls // lookahead token is inherited
-          . 
-
-** In state 142, looking ahead at METHOD, reducing production
-** attr_decls -> attr_decl
-** is permitted because of the following sub-derivation:
-
-attr_decl . 
-
-** Conflict (reduce/reduce) in state 140.
-** Token involved: END
-** This state is reached from program after reading:
-
-var_decls CLASS IDENT BEGIN attr_decls method_def
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-          class_def 
-          CLASS IDENT BEGIN attr_decls method_defs END // lookahead token appears
-                                       (?)
-
-** In state 140, looking ahead at END, reducing production
-** method_defs ->
-** is permitted because of the following sub-derivation:
-
-method_def method_defs // lookahead token is inherited
-           . 
-
-** In state 140, looking ahead at END, reducing production
-** method_defs -> method_def
-** is permitted because of the following sub-derivation:
-
-method_def . 
-
 ** Conflict (shift/reduce) in state 132.
 ** Token involved: RETURN
 ** This state is reached from program after reading:
@@ -93,9 +10,9 @@ var_decls CLASS IDENT BEGIN attr_decls METHOD typ IDENT LPAR params RPAR BEGIN v
 
 program 
 var_decls classes MAIN BEGIN seq END EOF 
-          class_def 
+          class_def classes 
           CLASS IDENT BEGIN attr_decls method_defs END 
-                                       method_def 
+                                       method_def method_defs 
                                        (?)
 
 ** In state 132, looking ahead at RETURN, shifting is permitted
@@ -123,9 +40,9 @@ var_decls CLASS IDENT BEGIN attr_decls METHOD typ IDENT LPAR params RPAR BEGIN
 
 program 
 var_decls classes MAIN BEGIN seq END EOF 
-          class_def 
+          class_def classes 
           CLASS IDENT BEGIN attr_decls method_defs END 
-                                       method_def 
+                                       method_def method_defs 
                                        (?)
 
 ** In state 127, looking ahead at RETURN, shifting is permitted
@@ -140,33 +57,6 @@ METHOD typ IDENT LPAR params RPAR BEGIN . RETURN expression SEMI END
 METHOD typ IDENT LPAR params RPAR BEGIN var_decls seq RETURN expression SEMI END // lookahead token appears because seq can begin with RETURN
                                         . 
 
-** Conflict (reduce/reduce) in state 120.
-** Tokens involved: WHILE TRUE THIS RETURN PRINT NOT NEW MINUS MAIN LPAR INT IF IDENT FALSE END CLASS
-** The following explanations concentrate on token MAIN.
-** This state is reached from program after reading:
-
-var_decl
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF // lookahead token appears because classes can vanish
-(?)
-
-** In state 120, looking ahead at MAIN, reducing production
-** var_decls ->
-** is permitted because of the following sub-derivation:
-
-var_decl var_decls // lookahead token is inherited
-         . 
-
-** In state 120, looking ahead at MAIN, reducing production
-** var_decls -> var_decl
-** is permitted because of the following sub-derivation:
-
-var_decl . 
-
 ** Conflict (shift/reduce) in state 112.
 ** Token involved: RETURN
 ** This state is reached from program after reading:
@@ -178,9 +68,9 @@ var_decls CLASS IDENT BEGIN attr_decls METHOD typ IDENT LPAR params RPAR BEGIN v
 
 program 
 var_decls classes MAIN BEGIN seq END EOF 
-          class_def 
+          class_def classes 
           CLASS IDENT BEGIN attr_decls method_defs END 
-                                       method_def 
+                                       method_def method_defs 
                                        (?)
 
 ** In state 112, looking ahead at RETURN, shifting is permitted
@@ -228,412 +118,6 @@ NOT expression .
 NOT expression 
     expression . REM expression 
 
-** Conflict (shift/reduce) in state 82.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN MINUS expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 82, looking ahead at OR, reducing production
-** expression -> MINUS expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-MINUS expression . 
-
-** In state 82, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-MINUS expression 
-      expression . OR expression 
-
-** Conflict (shift/reduce) in state 79.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression EQUAL expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 79, looking ahead at OR, reducing production
-** expression -> expression EQUAL expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression EQUAL expression . 
-
-** In state 79, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression EQUAL expression 
-                 expression . OR expression 
-
-** Conflict (shift/reduce) in state 77.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression GEQ expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 77, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression GEQ expression 
-               expression . OR expression 
-
-** In state 77, looking ahead at OR, reducing production
-** expression -> expression GEQ expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression GEQ expression . 
-
-** Conflict (shift/reduce) in state 75.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression GT expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 75, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression GT expression 
-              expression . OR expression 
-
-** In state 75, looking ahead at OR, reducing production
-** expression -> expression GT expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression GT expression . 
-
-** Conflict (shift/reduce) in state 73.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression LEQ expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 73, looking ahead at OR, reducing production
-** expression -> expression LEQ expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression LEQ expression . 
-
-** In state 73, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression LEQ expression 
-               expression . OR expression 
-
-** Conflict (shift/reduce) in state 71.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression LT expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 71, looking ahead at OR, reducing production
-** expression -> expression LT expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression LT expression . 
-
-** In state 71, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression LT expression 
-              expression . OR expression 
-
-** Conflict (shift/reduce) in state 69.
-** Tokens involved: REM PLUS OR NEQ MUL MINUS LT LEQ GT GEQ EQUAL DOT DIV AND
-** The following explanations concentrate on token REM.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression AND expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 69, looking ahead at REM, reducing production
-** expression -> expression AND expression
-** is permitted because of the following sub-derivation:
-
-expression REM expression // lookahead token appears
-expression AND expression . 
-
-** In state 69, looking ahead at REM, shifting is permitted
-** because of the following sub-derivation:
-
-expression AND expression 
-               expression . REM expression 
-
-** Conflict (shift/reduce) in state 67.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression DIV expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 67, looking ahead at OR, reducing production
-** expression -> expression DIV expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression DIV expression . 
-
-** In state 67, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression DIV expression 
-               expression . OR expression 
-
-** Conflict (shift/reduce) in state 65.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression MINUS expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 65, looking ahead at OR, reducing production
-** expression -> expression MINUS expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression MINUS expression . 
-
-** In state 65, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression MINUS expression 
-                 expression . OR expression 
-
-** Conflict (shift/reduce) in state 63.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression NEQ expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 63, looking ahead at OR, reducing production
-** expression -> expression NEQ expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression NEQ expression . 
-
-** In state 63, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression NEQ expression 
-               expression . OR expression 
-
-** Conflict (shift/reduce) in state 55.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression MUL expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 55, looking ahead at OR, reducing production
-** expression -> expression MUL expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression MUL expression . 
-
-** In state 55, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression MUL expression 
-               expression . OR expression 
-
-** Conflict (shift/reduce) in state 53.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression PLUS expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 53, looking ahead at OR, reducing production
-** expression -> expression PLUS expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression PLUS expression . 
-
-** In state 53, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression PLUS expression 
-                expression . OR expression 
-
-** Conflict (shift/reduce) in state 51.
-** Tokens involved: REM PLUS OR NEQ MUL MINUS LT LEQ GT GEQ EQUAL DOT DIV AND
-** The following explanations concentrate on token REM.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression OR expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 51, looking ahead at REM, reducing production
-** expression -> expression OR expression
-** is permitted because of the following sub-derivation:
-
-expression REM expression // lookahead token appears
-expression OR expression . 
-
-** In state 51, looking ahead at REM, shifting is permitted
-** because of the following sub-derivation:
-
-expression OR expression 
-              expression . REM expression 
-
-** Conflict (shift/reduce) in state 49.
-** Tokens involved: OR AND
-** The following explanations concentrate on token OR.
-** This state is reached from program after reading:
-
-var_decls classes MAIN BEGIN expression REM expression
-
-** The derivations that appear below have the following common factor:
-** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
-
-program 
-var_decls classes MAIN BEGIN seq END EOF 
-                             instruction seq 
-                             expression SEMI 
-                             (?)
-
-** In state 49, looking ahead at OR, shifting is permitted
-** because of the following sub-derivation:
-
-expression REM expression 
-               expression . OR expression 
-
-** In state 49, looking ahead at OR, reducing production
-** expression -> expression REM expression
-** is permitted because of the following sub-derivation:
-
-expression OR expression // lookahead token appears
-expression REM expression . 
-
 ** Conflict (shift/reduce) in state 21.
 ** Token involved: IDENT
 ** This state is reached from program after reading:
@@ -645,9 +129,9 @@ var_decls CLASS IDENT BEGIN attr_decls METHOD VOID
 
 program 
 var_decls classes MAIN BEGIN seq END EOF 
-          class_def 
+          class_def classes 
           CLASS IDENT BEGIN attr_decls method_defs END 
-                                       method_def 
+                                       method_def method_defs 
                                        (?)
 
 ** In state 21, looking ahead at IDENT, shifting is permitted

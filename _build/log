@@ -20,27 +20,4 @@
 #        }
 #  ; instrument_with = []
 #  }
-$ /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -config > /var/folders/bg/gl8hn4qd6r72cd2k6g21wrg40000gn/T/dune_c0d9be_output
-$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/menhir --explain --dump kawaparser.mly --base kawaparser --infer-write-query kawaparser__mock.ml.mock)
-> File "kawaparser.mly", line 10, characters 14-18:
-> Warning: the token BOOL is unused.
-$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamldep.opt -modules -impl kawaparser__mock.ml.mock) > _build/default/.kawai.eobjs/kawaparser__mock.impl.d
-$ (cd _build/.sandbox/61e5704f795626c692d7a11ee025a6e6/default && /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -g -I .kawai.eobjs/byte -open Dune__exe -short-paths -i -impl kawaparser__mock.ml.mock) > _build/.sandbox/61e5704f795626c692d7a11ee025a6e6/default/kawaparser__mock.mli.inferred
-$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/menhir --explain --dump kawaparser.mly --base kawaparser --infer-read-reply kawaparser__mock.mli.inferred)
-> Warning: 19 states have shift/reduce conflicts.
-> Warning: 4 states have reduce/reduce conflicts.
-> Warning: 70 shift/reduce conflicts were arbitrarily resolved.
-> Warning: 20 reduce/reduce conflicts were arbitrarily resolved.
-> File "kawaparser.mly", line 218, characters 2-11:
-> Warning: production attr_decls -> attr_decl is never reduced.
-> File "kawaparser.mly", line 114, characters 2-11:
-> Warning: production classes -> class_def is never reduced.
-> File "kawaparser.mly", line 239, characters 2-12:
-> Warning: production method_defs -> method_def is never reduced.
-> File "kawaparser.mly", line 72, characters 2-10:
-> Warning: production var_decls -> var_decl is never reduced.
-> Warning: in total, 4 productions are never reduced.
-$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamldep.opt -modules -impl kawaparser.ml) > _build/default/.kawai.eobjs/dune__exe__Kawaparser.impl.d
-$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamlopt.opt -g -I .kawai.eobjs/byte -I .kawai.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .kawai.eobjs/native/dune__exe__Kawaparser.cmx -c -impl kawaparser.ml)
-$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamlopt.opt -g -o kawai.exe .kawai.eobjs/native/dune__exe.cmx .kawai.eobjs/native/dune__exe__Kawa.cmx .kawai.eobjs/native/dune__exe__Interpreter.cmx .kawai.eobjs/native/dune__exe__Kawaparser.cmx .kawai.eobjs/native/dune__exe__Kawalexer.cmx .kawai.eobjs/native/dune__exe__Typechecker.cmx .kawai.eobjs/native/dune__exe__Kawai.cmx)
-# Promoting "_build/default/kawai.exe" to "kawai.exe"
+$ /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -config > /var/folders/bg/gl8hn4qd6r72cd2k6g21wrg40000gn/T/dune_666448_output

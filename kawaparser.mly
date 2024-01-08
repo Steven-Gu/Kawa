@@ -22,9 +22,12 @@
 %token OR AND COMMA NOT
 
 %nonassoc LT LEQ GT GEQ EQUAL NEQ
+%left OR
+%left AND
 %left PLUS MINUS
 %left MUL DIV REM
 %left DOT
+%nonassoc RETURN
 
 %start program
 %type <Kawa.program> program
@@ -69,8 +72,6 @@ var_decl:
 var_decls:
 | /* Empty */
   { [] }
-| var_decl
-  { [$1] }
 | var_decl var_decls
   { $1 :: $2 }
 ;
@@ -111,8 +112,6 @@ mem:
 classes:
 | /* Empty */
   { [] }
-| class_def
-  { [$1] }
 | class_def classes
   { $1 :: $2 }
 ;
@@ -215,8 +214,6 @@ class_def:
 attr_decls:
 | /* Empty */
   { [] }
-| attr_decl
-  { [$1] }
 | attr_decl attr_decls
   { $1 :: $2 }
 ;
@@ -236,8 +233,6 @@ attr_decl:
 method_defs:
 | /* Empty */
   { [] }
-| method_def
-  { [$1] }
 | method_def method_defs
   { $1 :: $2 }
 ;
@@ -247,8 +242,8 @@ method_def:
   { { method_name = $3; return = typ; params = params_opt; locals = var_decls; code = seq @ [Return(expr)] } }
 | METHOD VOID IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls seq=seq END
   { { method_name = $3; return = TVoid; params = params_opt; locals = var_decls; code = seq } }
-  | METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN RETURN expr=expression SEMI END
-  { { method_name = $3; return = typ; params = params_opt; locals = []; code = [] @ [Return(expr)] } }
+| METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN RETURN expr=expression SEMI END
+{ { method_name = $3; return = typ; params = params_opt; locals = []; code = [] @ [Return(expr)] } }
 ;
 
 seq:
