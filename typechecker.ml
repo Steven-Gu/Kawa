@@ -38,10 +38,7 @@ type tenv = Env.t
 
 let add_env l tenv =
   List.fold_left
-    (fun env (x, t) ->
-       match t with
-       | TClass _ -> Env.add_class x { class_name = x; attributes = []; methods = []; parent = None } env
-       | _ -> Env.add_type x t env)
+    (fun env (x, t) ->Env.add_type x t env)
     tenv l
 
 let get_class_def class_name tenv =
