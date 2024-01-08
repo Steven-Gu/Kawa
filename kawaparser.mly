@@ -19,15 +19,17 @@
 %token RETURN
 %token EOF
 %token ASSIGN EQUAL PLUS MINUS MUL DIV REM NEQ LT LEQ GT GEQ
-%token OR AND COMMA NOT
+%token OR AND COMMA NOT OPP
+
 
 %nonassoc LT LEQ GT GEQ EQUAL NEQ
 %left OR
 %left AND
 %left PLUS MINUS
 %left MUL DIV REM
+%left NOT OPP
 %left DOT
-%nonassoc RETURN
+
 
 %start program
 %type <Kawa.program> program
@@ -164,7 +166,7 @@ exprs:
 ;
 
 %inline uop:
-| MINUS { Opp }
+| OPP { Opp }
 | NOT   { Not }
 ;
 
@@ -238,13 +240,17 @@ method_defs:
 ;
 
 method_def:
-| METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls seq=seq RETURN expr=expression SEMI END
-  { { method_name = $3; return = typ; params = params_opt; locals = var_decls; code = seq @ [Return(expr)] } }
-| METHOD VOID IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls seq=seq END
-  { { method_name = $3; return = TVoid; params = params_opt; locals = var_decls; code = seq } }
-| METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN RETURN expr=expression SEMI END
-{ { method_name = $3; return = typ; params = params_opt; locals = []; code = [] @ [Return(expr)] } }
+| METHOD return=typ method_name=IDENT LPAR params=params RPAR
+    BEGIN locals=var_decls code=seq END
+    { {method_name; code; params; locals; return} }
 ;
+(*| METHOD VOID IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls seq=seq END
+  { { method_name = $3; return = TVoid; params = params_opt; locals = var_decls; code = seq } }*)
+(*| METHOD VOID IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls RETURN SEMI END
+  { { method_name = $3; return = TVoid; params = params_opt; locals = var_decls; code = [] } }*)
+(*| METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls RETURN expr=expression SEMI END
+  { { method_name = $3; return = typ; params = params_opt; locals = var_decls; code = [Return(expr)] } }*)
+
 
 seq:
 | /* Empty */

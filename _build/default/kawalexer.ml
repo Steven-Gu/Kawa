@@ -35,15 +35,15 @@
 # 36 "kawalexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
-   "\000\000\226\255\227\255\228\255\230\255\231\255\001\000\002\000\
-    \002\000\003\000\004\000\241\255\243\255\005\000\245\255\246\255\
+   "\000\000\225\255\226\255\227\255\229\255\230\255\001\000\002\000\
+    \002\000\003\000\004\000\240\255\243\255\005\000\245\255\246\255\
     \247\255\248\255\249\255\079\000\019\000\029\000\045\000\002\000\
-    \255\255\252\255\002\000\253\255\239\255\238\255\236\255\234\255\
-    \233\255\232\255\016\000\253\255\254\255\041\000\255\255";
+    \255\255\252\255\002\000\253\255\238\255\237\255\235\255\233\255\
+    \232\255\231\255\016\000\253\255\254\255\041\000\255\255";
   Lexing.lex_backtrk =
-   "\255\255\255\255\255\255\255\255\255\255\255\255\028\000\028\000\
-    \020\000\018\000\026\000\255\255\255\255\011\000\255\255\255\255\
-    \255\255\255\255\255\255\005\000\004\000\013\000\015\000\001\000\
+   "\255\255\255\255\255\255\255\255\255\255\255\255\029\000\029\000\
+    \021\000\019\000\027\000\255\255\255\255\011\000\255\255\255\255\
+    \255\255\255\255\255\255\005\000\004\000\013\000\016\000\001\000\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\001\000\255\255";
   Lexing.lex_default =
@@ -240,83 +240,88 @@ let
 
   | 14 ->
 # 58 "kawalexer.mll"
-         ( MUL)
+         ( OPP)
 # 245 "kawalexer.ml"
 
   | 15 ->
 # 59 "kawalexer.mll"
-         ( DIV)
+         ( MUL)
 # 250 "kawalexer.ml"
 
   | 16 ->
 # 60 "kawalexer.mll"
-         ( EQUAL)
+         ( DIV)
 # 255 "kawalexer.ml"
 
   | 17 ->
 # 61 "kawalexer.mll"
-         ( NEQ)
+         ( EQUAL)
 # 260 "kawalexer.ml"
 
   | 18 ->
 # 62 "kawalexer.mll"
-         ( LT)
+         ( NEQ)
 # 265 "kawalexer.ml"
 
   | 19 ->
 # 63 "kawalexer.mll"
-         ( LEQ)
+         ( LT)
 # 270 "kawalexer.ml"
 
   | 20 ->
 # 64 "kawalexer.mll"
-         ( GT)
+         ( LEQ)
 # 275 "kawalexer.ml"
 
   | 21 ->
 # 65 "kawalexer.mll"
-         ( GEQ)
+         ( GT)
 # 280 "kawalexer.ml"
 
   | 22 ->
 # 66 "kawalexer.mll"
-         ( OR)
+         ( GEQ)
 # 285 "kawalexer.ml"
 
   | 23 ->
 # 67 "kawalexer.mll"
-         ( AND)
+         ( OR)
 # 290 "kawalexer.ml"
 
   | 24 ->
 # 68 "kawalexer.mll"
-         ( DOT)
+         ( AND)
 # 295 "kawalexer.ml"
 
   | 25 ->
 # 69 "kawalexer.mll"
-         ( COMMA)
+         ( DOT)
 # 300 "kawalexer.ml"
 
   | 26 ->
 # 70 "kawalexer.mll"
-         ( NOT)
+         ( COMMA)
 # 305 "kawalexer.ml"
 
   | 27 ->
 # 71 "kawalexer.mll"
-         ( REM)
+         ( NOT)
 # 310 "kawalexer.ml"
 
   | 28 ->
-# 73 "kawalexer.mll"
-         ( raise (Error ("unknown character : " ^ lexeme lexbuf)) )
+# 72 "kawalexer.mll"
+         ( REM)
 # 315 "kawalexer.ml"
 
   | 29 ->
 # 74 "kawalexer.mll"
-         ( EOF )
+         ( raise (Error ("unknown character : " ^ lexeme lexbuf)) )
 # 320 "kawalexer.ml"
+
+  | 30 ->
+# 75 "kawalexer.mll"
+         ( EOF )
+# 325 "kawalexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_token_rec lexbuf __ocaml_lex_state
@@ -326,19 +331,19 @@ and comment lexbuf =
 and __ocaml_lex_comment_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 77 "kawalexer.mll"
-         ( () )
-# 332 "kawalexer.ml"
-
-  | 1 ->
 # 78 "kawalexer.mll"
-         ( comment lexbuf )
+         ( () )
 # 337 "kawalexer.ml"
 
-  | 2 ->
+  | 1 ->
 # 79 "kawalexer.mll"
-         ( raise (Error "unterminated comment") )
+         ( comment lexbuf )
 # 342 "kawalexer.ml"
+
+  | 2 ->
+# 80 "kawalexer.mll"
+         ( raise (Error "unterminated comment") )
+# 347 "kawalexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_comment_rec lexbuf __ocaml_lex_state

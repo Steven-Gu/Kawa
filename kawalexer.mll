@@ -55,6 +55,7 @@ rule token = parse
   | "="  { ASSIGN}
   | "+"  { PLUS}
   | "-"  { MINUS}
+  | "-"  { OPP}
   | "*"  { MUL}
   | "/"  { DIV}
   | "==" { EQUAL}

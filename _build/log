@@ -20,4 +20,12 @@
 #        }
 #  ; instrument_with = []
 #  }
-$ /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -config > /var/folders/bg/gl8hn4qd6r72cd2k6g21wrg40000gn/T/dune_666448_output
+$ /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -config > /var/folders/bg/gl8hn4qd6r72cd2k6g21wrg40000gn/T/dune_f98774_output
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/menhir --explain --dump kawaparser.mly --base kawaparser --infer-write-query kawaparser__mock.ml.mock)
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamldep.opt -modules -impl kawaparser__mock.ml.mock) > _build/default/.kawai.eobjs/kawaparser__mock.impl.d
+$ (cd _build/.sandbox/9e3f6eb7bae9a76d2ace1665628b6adf/default && /Users/hongfeizhang/.opam/default/bin/ocamlc.opt -g -I .kawai.eobjs/byte -open Dune__exe -short-paths -i -impl kawaparser__mock.ml.mock) > _build/.sandbox/9e3f6eb7bae9a76d2ace1665628b6adf/default/kawaparser__mock.mli.inferred
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/menhir --explain --dump kawaparser.mly --base kawaparser --infer-read-reply kawaparser__mock.mli.inferred)
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamldep.opt -modules -impl kawaparser.ml) > _build/default/.kawai.eobjs/dune__exe__Kawaparser.impl.d
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamlopt.opt -g -I .kawai.eobjs/byte -I .kawai.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .kawai.eobjs/native/dune__exe__Kawaparser.cmx -c -impl kawaparser.ml)
+$ (cd _build/default && /Users/hongfeizhang/.opam/default/bin/ocamlopt.opt -g -o kawai.exe .kawai.eobjs/native/dune__exe.cmx .kawai.eobjs/native/dune__exe__Kawa.cmx .kawai.eobjs/native/dune__exe__Interpreter.cmx .kawai.eobjs/native/dune__exe__Kawaparser.cmx .kawai.eobjs/native/dune__exe__Kawalexer.cmx .kawai.eobjs/native/dune__exe__Typechecker.cmx .kawai.eobjs/native/dune__exe__Kawai.cmx)
+# Promoting "_build/default/kawai.exe" to "kawai.exe"

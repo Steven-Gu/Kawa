@@ -14,6 +14,7 @@ type token =
   | PRINT
   | PLUS
   | OR
+  | OPP
   | NOT
   | NEW
   | NEQ
@@ -41,7 +42,6 @@ type token =
   | COMMA
   | CLASS
   | BOOL_TYPE
-  | BOOL of (bool)
   | BEGIN
   | ATTR
   | ASSIGN
