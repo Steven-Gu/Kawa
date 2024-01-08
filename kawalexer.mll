@@ -1,5 +1,4 @@
 {
-
   open Lexing
   open Kawaparser
 
@@ -8,24 +7,25 @@
   let keyword_or_ident =
   let h = Hashtbl.create 17 in
   List.iter (fun (s, k) -> Hashtbl.add h s k)
-    [
-        "true", TRUE;
-        "false", FALSE;
-        "var", VAR;
-        "attribute", ATTR;
-        "method", METHOD;
-        "class", CLASS;
-        "new", NEW;
-        "this", THIS;
-        "if", IF;
-        "else", ELSE;
-        "while", WHILE;
-        "return", RETURN;
-        "print", PRINT;
-        "int", INT_BOOL_TYPE;
-        "bool", INT_BOOL_TYPE;
-        "void", VOID;
-      ];
+    [ "print",      PRINT;
+      "main",       MAIN;
+      "true",       TRUE;
+      "false",      FALSE;
+      "var",        VAR;
+      "attribute",  ATTR;
+      "method",     METHOD;
+      "class",      CLASS;
+      "new",        NEW;
+      "this",       THIS;
+      "if",         IF;
+      "else",       ELSE;
+      "while",      WHILE;
+      "return",     RETURN;
+      "int",        INT_TYPE;
+      "bool",       BOOL_TYPE;
+      "void",       VOID;
+      "extends",    EXTENDS;
+    ] ;
   fun s ->
     try  Hashtbl.find h s
     with Not_found -> IDENT(s)
@@ -52,22 +52,23 @@ rule token = parse
   | ")"  { RPAR }
   | "{"  { BEGIN }
   | "}"  { END }
-  | "="  { ASSIGN }
-  | "+"  { PLUS }
-  | "-"  { MINUS }
-  | "*"  { MUL }
-  | "/"  { DIV }
-  | "%"  { REM }
-  | "==" { EQ }
-  | "!=" { NEQ }
-  | "<"  { LT }
-  | "<=" { LE }
-  | ">"  { GT }
-  | ">=" { GE }
-  | "&&" { AND }
-  | "||" { OR }
-  | "."  { DOT }
-  | ","  { COMMA }
+  | "="  { ASSIGN}
+  | "+"  { PLUS}
+  | "-"  { MINUS}
+  | "*"  { MUL}
+  | "/"  { DIV}
+  | "==" { EQUAL}
+  | "!=" { NEQ}
+  | "<"  { LT}
+  | "<=" { LEQ}
+  | ">"  { GT}
+  | ">=" { GEQ}
+  | "||" { OR}
+  | "&&" { AND}
+  | "."  { DOT}
+  | ","  { COMMA}
+  | "!"  { NOT}
+  | "%"  { REM}
 
   | _    { raise (Error ("unknown character : " ^ lexeme lexbuf)) }
   | eof  { EOF }
@@ -76,5 +77,3 @@ and comment = parse
   | "*/" { () }
   | _    { comment lexbuf }
   | eof  { raise (Error "unterminated comment") }
-
-
