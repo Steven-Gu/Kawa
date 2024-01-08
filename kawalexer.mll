@@ -67,7 +67,6 @@ rule token = parse
   | "&&" { AND}
   | "."  { DOT}
   | ","  { COMMA}
-  | "%"  { MOD}
   | "!"  { NOT}
   | "%"  { REM}
 

@@ -35,14 +35,14 @@
 # 36 "kawalexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
-   "\000\000\225\255\226\255\229\255\230\255\231\255\001\000\002\000\
+   "\000\000\226\255\227\255\228\255\230\255\231\255\001\000\002\000\
     \002\000\003\000\004\000\241\255\243\255\005\000\245\255\246\255\
     \247\255\248\255\249\255\079\000\019\000\029\000\045\000\002\000\
     \255\255\252\255\002\000\253\255\239\255\238\255\236\255\234\255\
     \233\255\232\255\016\000\253\255\254\255\041\000\255\255";
   Lexing.lex_backtrk =
-   "\255\255\255\255\255\255\255\255\255\255\255\255\029\000\029\000\
-    \020\000\018\000\027\000\255\255\255\255\011\000\255\255\255\255\
+   "\255\255\255\255\255\255\255\255\255\255\255\255\028\000\028\000\
+    \020\000\018\000\026\000\255\255\255\255\011\000\255\255\255\255\
     \255\255\255\255\255\255\005\000\004\000\013\000\015\000\001\000\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\001\000\255\255";
@@ -300,28 +300,23 @@ let
 
   | 26 ->
 # 70 "kawalexer.mll"
-         ( MOD)
+         ( NOT)
 # 305 "kawalexer.ml"
 
   | 27 ->
 # 71 "kawalexer.mll"
-         ( NOT)
+         ( REM)
 # 310 "kawalexer.ml"
 
   | 28 ->
-# 72 "kawalexer.mll"
-         ( REM)
+# 73 "kawalexer.mll"
+         ( raise (Error ("unknown character : " ^ lexeme lexbuf)) )
 # 315 "kawalexer.ml"
 
   | 29 ->
 # 74 "kawalexer.mll"
-         ( raise (Error ("unknown character : " ^ lexeme lexbuf)) )
-# 320 "kawalexer.ml"
-
-  | 30 ->
-# 75 "kawalexer.mll"
          ( EOF )
-# 325 "kawalexer.ml"
+# 320 "kawalexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_token_rec lexbuf __ocaml_lex_state
@@ -331,19 +326,19 @@ and comment lexbuf =
 and __ocaml_lex_comment_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 78 "kawalexer.mll"
+# 77 "kawalexer.mll"
          ( () )
-# 337 "kawalexer.ml"
+# 332 "kawalexer.ml"
 
   | 1 ->
-# 79 "kawalexer.mll"
+# 78 "kawalexer.mll"
          ( comment lexbuf )
-# 342 "kawalexer.ml"
+# 337 "kawalexer.ml"
 
   | 2 ->
-# 80 "kawalexer.mll"
+# 79 "kawalexer.mll"
          ( raise (Error "unterminated comment") )
-# 347 "kawalexer.ml"
+# 342 "kawalexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_comment_rec lexbuf __ocaml_lex_state

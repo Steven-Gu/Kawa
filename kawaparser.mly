@@ -7,22 +7,24 @@
 
 %token <int> INT
 %token <string> IDENT
-%token <bool> BOOL
+//%token <bool> BOOL
 %token INT_TYPE BOOL_TYPE
 %token MAIN
 %token LPAR RPAR BEGIN END SEMI
 %token PRINT
 %token TRUE FALSE
-%token VAR ATTR METHOD CLASS NEW THIS EXTENDS
+%token VAR ATTR METHOD CLASS NEW THIS EXTENDS DOT
 %token IF ELSE WHILE
 %token VOID
 %token RETURN
 %token EOF
-%token LBRACE RBRACE
-%token ASSIGN PLUS MINUS MUL DIV REM EQUAL NEQ LT LEQ GT GEQ MOD
-%token OR AND DOT COMMA NOT
+%token ASSIGN EQUAL PLUS MINUS MUL DIV REM NEQ LT LEQ GT GEQ
+%token OR AND COMMA NOT
+
+%nonassoc LT LEQ GT GEQ EQUAL NEQ
 %left PLUS MINUS
 %left MUL DIV REM
+%left DOT
 
 %start program
 %type <Kawa.program> program
@@ -55,7 +57,7 @@
 
 
 program:
-| MAIN BEGIN globals = var_decls classes = classes main=seq END EOF
+|globals = var_decls classes = classes MAIN BEGIN main=seq END EOF
     { {classes=classes; globals=globals; main} }
 ;
 
@@ -65,6 +67,8 @@ var_decl:
 ;
 
 var_decls:
+| /* Empty */
+  { [] }
 | var_decl
   { [$1] }
 | var_decl var_decls
@@ -105,6 +109,8 @@ mem:
 ;*)
 
 classes:
+| /* Empty */
+  { [] }
 | class_def
   { [$1] }
 | class_def classes
@@ -114,10 +120,10 @@ classes:
 instruction:
 | PRINT LPAR e=expression RPAR SEMI { Print(e) }
 | mem = mem ASSIGN e = expression SEMI { Set(mem, e) }
-| IF LPAR cond = expression RPAR LBRACE true_branch = seq RBRACE
-      ELSE LBRACE false_branch = seq RBRACE
+| IF LPAR cond = expression RPAR BEGIN true_branch = seq END
+      ELSE BEGIN false_branch = seq END
     { If(cond, true_branch, false_branch) }
-| WHILE LPAR cond = expression RPAR LBRACE body = seq RBRACE
+| WHILE LPAR cond = expression RPAR BEGIN body = seq END
     { While(cond, body) }
 | RETURN e = expression SEMI { Return(e) }
 | e = expression SEMI { Expr(e) }
@@ -150,18 +156,20 @@ expression:
 ;*)
 
 exprs:
+| /* Empty */
+  { [] }
 | expr=expression
   { [expr] }
 | expr=expression COMMA exprs=exprs
   { expr :: exprs }
 ;
 
-uop:
+%inline uop:
 | MINUS { Opp }
 | NOT   { Not }
 ;
 
-bop:
+%inline bop:
 | PLUS { Add }
 | MINUS { Sub }
 | MUL{ Mul }
@@ -205,6 +213,8 @@ class_def:
 ;
 
 attr_decls:
+| /* Empty */
+  { [] }
 | attr_decl
   { [$1] }
 | attr_decl attr_decls
@@ -224,6 +234,8 @@ attr_decl:
 ;*)
 
 method_defs:
+| /* Empty */
+  { [] }
 | method_def
   { [$1] }
 | method_def method_defs
@@ -233,17 +245,23 @@ method_defs:
 method_def:
 | METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls seq=seq RETURN expr=expression SEMI END
   { { method_name = $3; return = typ; params = params_opt; locals = var_decls; code = seq @ [Return(expr)] } }
+| METHOD VOID IDENT LPAR params_opt=params RPAR BEGIN var_decls=var_decls seq=seq END
+  { { method_name = $3; return = TVoid; params = params_opt; locals = var_decls; code = seq } }
+  | METHOD typ=typ IDENT LPAR params_opt=params RPAR BEGIN RETURN expr=expression SEMI END
+  { { method_name = $3; return = typ; params = params_opt; locals = []; code = [] @ [Return(expr)] } }
 ;
 
 seq:
 | /* Empty */
   { [] }
-| instruction SEMI seq
-  { $1 :: $3 }
+| instruction seq
+  { $1 :: $2 }
 ;
 
 
 params:
+| /* Empty */
+  { [] }
 | typ=typ IDENT
   { [($2, typ)] }
 | typ=typ IDENT COMMA params

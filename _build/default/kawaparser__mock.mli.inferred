@@ -8,7 +8,6 @@ type token =
   | RPAR
   | RETURN
   | REM
-  | RBRACE
   | PRINT
   | PLUS
   | OR
@@ -16,14 +15,12 @@ type token =
   | NEW
   | NEQ
   | MUL
-  | MOD
   | MINUS
   | METHOD
   | MAIN
   | LT
   | LPAR
   | LEQ
-  | LBRACE
   | INT_TYPE
   | INT of int
   | IF
