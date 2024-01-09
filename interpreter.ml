@@ -12,6 +12,7 @@ and obj = {
 
 exception Error of string
 exception Return of value
+let current_object = ref None
 
 let exec_prog (p: program): unit =
   let env = Hashtbl.create 16 in
@@ -24,8 +25,41 @@ let exec_prog (p: program): unit =
     Hashtbl.add env cls.class_name (VObj obj)
   ) p.classes;
 
-  let rec eval_call (this: value) method_name args env lenv =
-    failwith "todo"
+
+  let rec eval_call (this: value) method_name (args: value list) =
+    match this with
+    | VObj obj ->
+      current_object := Some this;
+      let class_def = find_class_def obj.cls p.classes in
+      let method_def = find_method_def method_name class_def.methods in
+      let lenv = create_local_env method_def.params args in
+      let result = (try
+        eval_seq method_def.code lenv;
+        Null
+      with
+      | Return v -> v
+      | Error e -> raise (Error e))
+      in
+      current_object := None;
+      result
+    | _ -> raise (Error "Method call on non-object type")
+  
+  and find_class_def cls_name classes =
+    match List.find_opt (fun c -> c.class_name = cls_name) classes with
+    | Some class_def -> class_def
+    | None -> raise (Error ("Class not found: " ^ cls_name))
+  
+  and find_method_def method_name methods =
+    match List.find_opt (fun m -> m.method_name = method_name) methods with
+    | Some method_def -> method_def
+    | None -> raise (Error ("Method not found: " ^ method_name))
+  
+  and create_local_env params args =
+    let env = Hashtbl.create (List.length params) in
+    List.iter2 (fun (param_name, _) arg ->
+      Hashtbl.add env param_name arg
+    ) params args;
+    env
 
   and eval_seq s lenv =
     let rec evali e  = match eval e with
@@ -35,20 +69,24 @@ let exec_prog (p: program): unit =
       | VBool b -> b
       | _ -> raise (Error "Expected boolean value")
     and eval_mem_access m env lenv = match m with
-      | Var var_name ->
+    | Var var_name ->
+      (match Hashtbl.find_opt lenv var_name with
+      | Some value -> value
+      | None ->
         (match Hashtbl.find_opt env var_name with
         | Some value -> value
-        | None -> raise (Error ("Variable not found: " ^ var_name)))
-      | Field (obj, field_name) ->
-        let this = eval obj in
-        (match this with
-        | VObj o ->
-          (match Hashtbl.find_opt o.fields field_name with
-          | Some value -> value
-          | None -> raise (Error ("Attribute not found: " ^ field_name)))
-        | _ -> raise (Error "Field access on non-object type"))
+        | None -> raise (Error ("Variable not found: " ^ var_name))))
+    | Field (obj, field_name) ->
+      let this = eval obj in
+      (match this with
+      | VObj o ->
+        (match Hashtbl.find_opt o.fields field_name with
+        | Some value -> value
+        | None -> raise (Error ("Attribute not found: " ^ field_name)))
+      | _ -> raise (Error "Field access on non-object type"))
+    
 
-    and eval (e: expr) = match e with
+    and eval (e: expr)  = match e with
       | Int n  -> VInt n
       | Bool b -> VBool b
       | Unop (unop, e') ->
@@ -76,17 +114,22 @@ let exec_prog (p: program): unit =
 
       | Get m -> eval_mem_access m env lenv
 
-      | This -> (match lenv with Some obj -> obj | None -> raise (Error "Cannot use This outside of a method context"))
+      | This ->
+        (match !current_object with
+        | Some obj -> obj
+        | None -> raise (Error "Use of 'this' outside of object context"))
 
       | New c -> VObj { cls = c; fields = Hashtbl.create 8 }
 
       | NewCstr (class_name, args) ->
         let obj = eval (New class_name) in
-        eval_call obj "constructor" args env lenv
+        let evaluated_args = List.map (fun arg -> eval arg) args in
+        eval_call obj "constructor" evaluated_args
 
       | MethCall (obj, method_name, args) ->
         let this = eval obj in
-        let obj_val = eval_call this method_name args env lenv in
+        let evaluated_args = List.map (fun arg -> eval arg) args in
+        let obj_val = eval_call this method_name evaluated_args in
         (match obj_val with
         | VObj o -> VObj o
         | _ -> raise (Error "Method call did not return an object"))
@@ -120,4 +163,4 @@ let exec_prog (p: program): unit =
     exec_seq s
   in
   
-    eval_seq p.main None
+    eval_seq p.main (Hashtbl.create 1)
