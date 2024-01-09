@@ -53,23 +53,21 @@ let get_method_def class_def method_name =
   with Not_found ->
     error ("Method not found: " ^ method_name ^ " in class " ^ class_def.class_name)
 
-
-let rec is_subtype typ1 typ2 tenv =
-  match typ1, typ2 with
-  | TClass class1, TClass class2 when class1 = class2 -> true
-  | TClass class1, TClass class2 ->
-    (match Env.find_class class1 tenv with
-    | Some class_def -> 
-        (match class_def.parent with
-        | Some parent_class -> is_subtype (TClass parent_class) typ2 tenv
-        | None -> false)
-    | None -> false)
-  | _, _ -> typ1 = typ2
-
-and check e typ tenv =
+let rec check e typ tenv =
   let typ_e = type_expr e tenv in
-  if typ_e <> typ then
+  if typ_e <> typ && not (is_subtype tenv typ_e typ) then
     error (Printf.sprintf "Expected %s, got %s" (typ_to_string typ) (typ_to_string typ_e))
+
+and is_subtype tenv sub super =
+  match sub, super with
+  | TClass sub_class, TClass super_class ->
+    let sub_class_def = get_class_def sub_class tenv in
+    if sub_class = super_class then true
+    else
+      (match sub_class_def.parent with
+      | Some parent_class -> is_subtype tenv (TClass parent_class) super
+      | None -> false)
+  | _ -> false
 
 and type_expr e tenv = match e with
   | Int _  -> TInt
@@ -139,40 +137,42 @@ and type_expr e tenv = match e with
     
     TClass class_name
 
-    | MethCall (obj, method_name, args) ->
-      let obj_type = type_expr obj tenv in
-      (match obj_type with
+  | MethCall (obj, method_name, args) ->
+    let obj_type = type_expr obj tenv in
+    (match obj_type with
       | TClass class_name ->
         let class_def = get_class_def class_name tenv in
         let method_def = get_method_def class_def method_name in
-        (* ... check arguments ... *)
+        let check_method_arg (param_name, param_type) arg_expr =
+          let arg_type = type_expr arg_expr tenv in
+          if arg_type <> param_type then
+            error (Printf.sprintf "Method argument %s expected type %s, got %s"
+                     param_name (typ_to_string param_type) (typ_to_string arg_type))
+        in
+        List.iter2 check_method_arg method_def.params args;
         method_def.return
       | _ -> error "Invalid object type for method call")
 
-
-and type_mem_access m tenv = match m with
+and type_mem_access m tenv = 
+  match m with
   | Var var_name -> 
-      (try Env.find_type var_name tenv with Not_found -> error ("Variable not found: " ^ var_name))
+    (try Env.find_type var_name tenv with Not_found -> raise (Error ("Variable not found: " ^ var_name)))
   | Field (obj, field_name) ->
-      let obj_type = type_expr obj tenv in
+    let obj_type = type_expr obj tenv in
+    let attr_type =
       match obj_type with
-      | TClass class_name -> find_field_in_hierarchy class_name field_name tenv
-      | _ -> error "Field access on non-class type"
-
-and find_field_in_hierarchy class_name field_name tenv =
-  let rec helper current_class =
-    match Env.find_class current_class tenv with
-    | Some class_def ->
-        (try Some (List.assoc field_name class_def.attributes)
-         with Not_found -> 
-           match class_def.parent with
-           | Some parent_class -> helper parent_class
-           | None -> None)
-    | None -> None
-  in
-  match helper class_name with
-  | Some attr_type -> attr_type
-  | None -> error ("Attribute not found: " ^ field_name ^ " in class hierarchy starting with " ^ class_name)
+      | TClass class_name ->
+        let class_def = get_class_def class_name tenv in
+        (try List.assoc field_name class_def.attributes with Not_found ->
+          (match class_def.parent with
+          | None -> raise (Error ("Attribute not found: " ^ field_name ^ " in class " ^ class_name))
+          | Some parent ->
+            let parent_def = get_class_def parent tenv in
+            (try List.assoc field_name parent_def.attributes with Not_found ->
+              raise (Error ("Attribute not found: " ^ field_name ^ " in class " ^ class_name)))))
+      | _ -> raise (Error "Field access on non-class type")
+    in
+    attr_type
 
 and check_instr i ret tenv = match i with
   | Print e -> check e TInt tenv
@@ -209,7 +209,6 @@ and check_mdef method_def tenv =
   let tenv' = add_env method_def.params tenv in
   let tenv'' = add_env method_def.locals tenv' in
   check_seq method_def.code method_def.return tenv''
-
 
 let typecheck_prog p =
   let tenv = List.fold_left (fun env c -> Env.add_class c.class_name c env) Env.empty p.classes in

@@ -14,7 +14,7 @@ exception Error of string
 exception Return of value
 let current_object = ref None
 
-let rec string_of_expr = function
+(* let rec string_of_expr = function
   | Int n -> Printf.sprintf "Int(%d)" n
   | Bool b -> Printf.sprintf "Bool(%b)" b
   | This -> "This"
@@ -85,7 +85,12 @@ and string_of_obj o =
 let print_obj obj =
   Printf.printf "Object: %s\n" (string_of_obj obj)
 
-
+let print_env env =
+  Printf.printf "Environment:\n";
+  Hashtbl.iter (fun key value ->
+    Printf.printf "  %s -> %s\n" key (string_of_value value)
+  ) env
+ *)
 let exec_prog (p: program): unit =
   let env = Hashtbl.create 16 in
   List.iter (fun (x, _) -> Hashtbl.add env x Null) p.globals;
@@ -101,7 +106,6 @@ let exec_prog (p: program): unit =
   let rec eval_call (this: value) method_name (args: value list) =
     match this with
     | VObj obj ->
-      Printf.printf "Object before method '%s': %s\n" method_name (string_of_obj obj);  (* Debug Print *)
       current_object := Some this;
       let class_def = find_class_def obj.cls p.classes in
       let method_def = find_method_def method_name class_def.methods in
@@ -114,8 +118,7 @@ let exec_prog (p: program): unit =
       | Error e -> raise (Error e))
       in
       current_object := None;
-      Printf.printf "Object after method '%s': %s\n" method_name (string_of_obj obj);  (* Debug Print *)
-      result
+      (result,obj)
     | _ -> raise (Error "Method call on non-object type")
   
   and find_class_def cls_name classes =
@@ -151,16 +154,12 @@ let exec_prog (p: program): unit =
         | Some value -> value
         | None -> raise (Error ("Variable not found: " ^ var_name))))
     | Field (obj, field_name) ->
-      Printf.printf "eval_mem_access field before eval obj: %s\n" (string_of_expr obj);
       let this = eval obj in
-      Printf.printf "eval_mem_access field after eval this: %s\n" (string_of_value this);
       (match this with
       | VObj o ->
         (match Hashtbl.find_opt o.fields field_name with
         | Some value -> value
-        | None -> 
-          
-          raise (Error ("Attribute not found: " ^ field_name)));
+        | None -> raise (Error ("Attribute not found: " ^ field_name)));
       | _ -> raise (Error "Field access on non-object type"))
     
 
@@ -194,7 +193,7 @@ let exec_prog (p: program): unit =
 
       | This ->
         (match !current_object with
-        | Some obj -> obj
+        | Some obj -> obj 
         | None -> raise (Error "Use of 'this' outside of object context"))
 
       | New c -> VObj { cls = c; fields = Hashtbl.create 8 }
@@ -202,18 +201,14 @@ let exec_prog (p: program): unit =
       | NewCstr (class_name, args) ->
         let obj = eval (New class_name) in
         let evaluated_args = List.map (fun arg -> eval arg) args in
-        let result = eval_call obj "constructor" evaluated_args in
-        Printf.printf "Object after constructor: %s\n" (string_of_value result);  (* Debug Print *)
-        result
+        let result = snd (eval_call obj "constructor" evaluated_args) in
+        VObj result
 
       | MethCall (obj, method_name, args) ->
         let this = eval obj in
         let evaluated_args = List.map (fun arg -> eval arg) args in
-        let obj_val = eval_call this method_name evaluated_args in
-        Printf.printf "Object after method call: %s\n" (string_of_value obj_val);  (* Debug Print *)
-        (match obj_val with
-        | VObj o -> VObj o
-        | _ -> raise (Error "Method call did not return an object"))
+        let obj_val = fst (eval_call this method_name evaluated_args) in
+        obj_val
 
     in
   
@@ -228,7 +223,6 @@ let exec_prog (p: program): unit =
           (match this with
           | VObj o -> 
             Hashtbl.replace o.fields field_name value;
-            Printf.printf "Object after field set: %s\n" (string_of_obj o);  (* Debug Print *)
           | _ -> raise (Error "Field access on non-object type")))
       | If (e, seq1, seq2) ->
         if evalb e then exec_seq seq1  else exec_seq seq2

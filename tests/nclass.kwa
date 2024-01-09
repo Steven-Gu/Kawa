@@ -14,7 +14,8 @@ class segment {
 main {
   p = new point;
   p.x = 1;
-  p.y = 2;
+  p.y = 1;
+  p.y = 1 + p.y;
   s = new segment;
   s.a = p;
   s.b = new point;
