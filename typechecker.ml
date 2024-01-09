@@ -142,9 +142,10 @@ and type_expr e tenv = match e with
         method_def.return
       | _ -> error "Invalid object type for method call")
 
-and type_mem_access m tenv = match m with
+and type_mem_access m tenv = 
+  match m with
   | Var var_name -> 
-    (try Env.find_type var_name tenv with Not_found -> error ("Variable not found: " ^ var_name))
+    (try Env.find_type var_name tenv with Not_found -> raise (Error ("Variable not found: " ^ var_name)))
   | Field (obj, field_name) ->
     let obj_type = type_expr obj tenv in
     let attr_type =
@@ -152,8 +153,13 @@ and type_mem_access m tenv = match m with
       | TClass class_name ->
         let class_def = get_class_def class_name tenv in
         (try List.assoc field_name class_def.attributes with Not_found ->
-          error ("Attribute not found: " ^ field_name ^ " in class " ^ class_name))
-      | _ -> error "Field access on non-class type"
+          (match class_def.parent with
+          | None -> raise (Error ("Attribute not found: " ^ field_name ^ " in class " ^ class_name))
+          | Some parent ->
+            let parent_def = get_class_def parent tenv in
+            (try List.assoc field_name parent_def.attributes with Not_found ->
+              raise (Error ("Attribute not found: " ^ field_name ^ " in class " ^ class_name)))))
+      | _ -> raise (Error "Field access on non-class type")
     in
     attr_type
 
