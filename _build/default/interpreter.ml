@@ -14,6 +14,45 @@ exception Error of string
 exception Return of value
 let current_object = ref None
 
+let rec string_of_expr = function
+  | Int n -> Printf.sprintf "Int(%d)" n
+  | Bool b -> Printf.sprintf "Bool(%b)" b
+  | This -> "This"
+  | Get m -> Printf.sprintf "Get(%s)" (string_of_mem_access m)
+  | Unop (u, e) -> Printf.sprintf "Unop(%s, %s)" (string_of_unop u) (string_of_expr e)
+  | Binop (b, e1, e2) ->
+      Printf.sprintf "Binop(%s, %s, %s)" (string_of_binop b) (string_of_expr e1) (string_of_expr e2)
+  | New cls -> Printf.sprintf "New(%s)" cls
+  | NewCstr (cls, args) ->
+      let args_str = String.concat ", " (List.map string_of_expr args) in
+      Printf.sprintf "NewCstr(%s, [%s])" cls args_str
+  | MethCall (obj, method_name, args) ->
+      let obj_str = string_of_expr obj in
+      let args_str = String.concat ", " (List.map string_of_expr args) in
+      Printf.sprintf "MethCall(%s, %s, [%s])" obj_str method_name args_str
+
+and string_of_unop = function
+  | Opp -> "Opp"
+  | Not -> "Not"
+
+and string_of_binop = function
+  | Add -> "Add"
+  | Sub -> "Sub"
+  | Mul -> "Mul"
+  | Div -> "Div"
+  | Rem -> "Rem"
+  | Lt -> "Lt"
+  | Le -> "Le"
+  | Gt -> "Gt"
+  | Ge -> "Ge"
+  | Eq -> "Eq"
+  | Neq -> "Neq"
+  | And -> "And"
+  | Or -> "Or"
+
+and string_of_mem_access = function
+  | Var v -> Printf.sprintf "Var(%s)" v
+  | Field (e, field) -> Printf.sprintf "Field(%s, %s)" (string_of_expr e) field
 
 
 let rec string_of_value = function
@@ -30,6 +69,18 @@ and string_of_obj obj =
   ) obj.fields;
   Buffer.add_string buf " }";
   Buffer.contents buf
+
+  let rec string_of_value v = match v with
+  | VInt n -> Printf.sprintf "VInt(%d)" n
+  | VBool b -> Printf.sprintf "VBool(%b)" b
+  | VObj obj -> string_of_obj obj
+  | Null -> "Null"
+
+and string_of_obj o =
+  let fields_str = Hashtbl.fold (fun key value acc ->
+    Printf.sprintf "%s: %s; %s" key (string_of_value value) acc
+  ) o.fields ""
+  in Printf.sprintf "{ %s }" fields_str
 
 let print_obj obj =
   Printf.printf "Object: %s\n" (string_of_obj obj)
@@ -100,12 +151,16 @@ let exec_prog (p: program): unit =
         | Some value -> value
         | None -> raise (Error ("Variable not found: " ^ var_name))))
     | Field (obj, field_name) ->
+      Printf.printf "eval_mem_access field before eval obj: %s\n" (string_of_expr obj);
       let this = eval obj in
+      Printf.printf "eval_mem_access field after eval this: %s\n" (string_of_value this);
       (match this with
       | VObj o ->
         (match Hashtbl.find_opt o.fields field_name with
         | Some value -> value
-        | None -> raise (Error ("Attribute not found: " ^ field_name)))
+        | None -> 
+          
+          raise (Error ("Attribute not found: " ^ field_name)));
       | _ -> raise (Error "Field access on non-object type"))
     
 
@@ -172,8 +227,8 @@ let exec_prog (p: program): unit =
           let this = eval obj in
           (match this with
           | VObj o -> 
-            Hashtbl.replace o.fields field_name value
-            (*Printf.printf "Object after field set: %s\n" (string_of_obj obj);*)  (* Debug Print *)
+            Hashtbl.replace o.fields field_name value;
+            Printf.printf "Object after field set: %s\n" (string_of_obj o);  (* Debug Print *)
           | _ -> raise (Error "Field access on non-object type")))
       | If (e, seq1, seq2) ->
         if evalb e then exec_seq seq1  else exec_seq seq2
