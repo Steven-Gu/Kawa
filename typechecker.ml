@@ -55,8 +55,19 @@ let get_method_def class_def method_name =
 
 let rec check e typ tenv =
   let typ_e = type_expr e tenv in
-  if typ_e <> typ then
+  if typ_e <> typ && not (is_subtype tenv typ_e typ) then
     error (Printf.sprintf "Expected %s, got %s" (typ_to_string typ) (typ_to_string typ_e))
+
+and is_subtype tenv sub super =
+  match sub, super with
+  | TClass sub_class, TClass super_class ->
+    let sub_class_def = get_class_def sub_class tenv in
+    if sub_class = super_class then true
+    else
+      (match sub_class_def.parent with
+      | Some parent_class -> is_subtype tenv (TClass parent_class) super
+      | None -> false)
+  | _ -> false
 
 and type_expr e tenv = match e with
   | Int _  -> TInt
