@@ -1,1 +1,1 @@
-interpreter.ml: Hashtbl Kawa List Printf
+interpreter.ml: Buffer Hashtbl Kawa List Printf

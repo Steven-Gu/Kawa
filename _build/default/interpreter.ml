@@ -12,6 +12,28 @@ and obj = {
 
 exception Error of string
 exception Return of value
+let current_object = ref None
+
+
+
+let rec string_of_value = function
+  | VInt n -> Printf.sprintf "VInt(%d)" n
+  | VBool b -> Printf.sprintf "VBool(%s)" (string_of_bool b)
+  | VObj obj -> Printf.sprintf "VObj(%s)" (string_of_obj obj)
+  | Null -> "Null"
+
+and string_of_obj obj =
+  let buf = Buffer.create 50 in
+  Buffer.add_string buf "{ ";
+  Hashtbl.iter (fun key value ->
+    Buffer.add_string buf (Printf.sprintf "%s: %s; " key (string_of_value value))
+  ) obj.fields;
+  Buffer.add_string buf " }";
+  Buffer.contents buf
+
+let print_obj obj =
+  Printf.printf "Object: %s\n" (string_of_obj obj)
+
 
 let exec_prog (p: program): unit =
   let env = Hashtbl.create 16 in
@@ -24,70 +46,80 @@ let exec_prog (p: program): unit =
     Hashtbl.add env cls.class_name (VObj obj)
   ) p.classes;
 
-  let rec eval_call f this args env lenv =
-    match f with
-    | VObj obj ->
-      begin
-        match Hashtbl.find_opt obj.fields "constructor" with
-        | Some constr ->
-          (* Directly use the arguments assuming they are already evaluated values. *)
-          let constr_args = args in  (* Directly pass the args without evaluation *)
-          (* Additional logic would be required here to actually invoke the constructor
-             with constr_args if it is a function or method. *)
-          (* ... *)
-          VObj obj
-        | None -> VObj obj  (* Return the object if there is no constructor *)
-      end
-    | _ -> raise (Error "Cannot call method on non-object")
-  (*let rec eval_call f this args env lenv =
-    match eval f env lenv with
-    | VObj obj ->
-      begin
-        match Hashtbl.find_opt obj.fields "constructor" with
-        | Some (VObj constr_obj) ->
-          let constr_args = List.map (fun e -> eval e env lenv) args in
-          ignore (eval_call (VObj constr_obj) this constr_args env lenv);
-          VObj obj
-        | _ -> VObj obj
-      end
-    | _ -> raise (Error "Cannot call method on non-object")*)
 
-  and exec_seq s env lenv =
-    let rec evali e env lenv = match eval e env lenv with
+  let rec eval_call (this: value) method_name (args: value list) =
+    match this with
+    | VObj obj ->
+      Printf.printf "Object before method '%s': %s\n" method_name (string_of_obj obj);  (* Debug Print *)
+      current_object := Some this;
+      let class_def = find_class_def obj.cls p.classes in
+      let method_def = find_method_def method_name class_def.methods in
+      let lenv = create_local_env method_def.params args in
+      let result = (try
+        eval_seq method_def.code lenv;
+        Null
+      with
+      | Return v -> v
+      | Error e -> raise (Error e))
+      in
+      current_object := None;
+      Printf.printf "Object after method '%s': %s\n" method_name (string_of_obj obj);  (* Debug Print *)
+      result
+    | _ -> raise (Error "Method call on non-object type")
+  
+  and find_class_def cls_name classes =
+    match List.find_opt (fun c -> c.class_name = cls_name) classes with
+    | Some class_def -> class_def
+    | None -> raise (Error ("Class not found: " ^ cls_name))
+  
+  and find_method_def method_name methods =
+    match List.find_opt (fun m -> m.method_name = method_name) methods with
+    | Some method_def -> method_def
+    | None -> raise (Error ("Method not found: " ^ method_name))
+  
+  and create_local_env params args =
+    let env = Hashtbl.create (List.length params) in
+    List.iter2 (fun (param_name, _) arg ->
+      Hashtbl.add env param_name arg
+    ) params args;
+    env
+
+  and eval_seq s lenv =
+    let rec evali e  = match eval e with
       | VInt n -> n
       | _ -> raise (Error "Expected integer value")
-    and evalb e env lenv = match eval e env lenv with
+    and evalb e = match eval e with
       | VBool b -> b
       | _ -> raise (Error "Expected boolean value")
-    and evalo e env lenv = match eval e env lenv with
-      | VObj o -> o
-      | _ -> raise (Error "Expected object value")
-
     and eval_mem_access m env lenv = match m with
-      | Var var_name ->
+    | Var var_name ->
+      (match Hashtbl.find_opt lenv var_name with
+      | Some value -> value
+      | None ->
         (match Hashtbl.find_opt env var_name with
         | Some value -> value
-        | None -> raise (Error ("Variable not found: " ^ var_name)))
-      | Field (obj, field_name) ->
-        let this = eval obj env lenv in
-        (match this with
-        | VObj o ->
-          (match Hashtbl.find_opt o.fields field_name with
-          | Some value -> value
-          | None -> raise (Error ("Attribute not found: " ^ field_name)))
-        | _ -> raise (Error "Field access on non-object type"))
+        | None -> raise (Error ("Variable not found: " ^ var_name))))
+    | Field (obj, field_name) ->
+      let this = eval obj in
+      (match this with
+      | VObj o ->
+        (match Hashtbl.find_opt o.fields field_name with
+        | Some value -> value
+        | None -> raise (Error ("Attribute not found: " ^ field_name)))
+      | _ -> raise (Error "Field access on non-object type"))
+    
 
-    and eval (e: expr) env lenv = match e with
+    and eval (e: expr)  = match e with
       | Int n  -> VInt n
       | Bool b -> VBool b
       | Unop (unop, e') ->
-        let v = eval e' env lenv in
+        let v = eval e' in
         (match unop with
         | Opp -> (match v with VInt n -> VInt (-n) | _ -> raise (Error "Expected integer value"))
         | Not -> (match v with VBool b -> VBool (not b) | _ -> raise (Error "Expected boolean value")))
       | Binop (binop, e1, e2) ->
-        let v1 = eval e1 env lenv in
-        let v2 = eval e2 env lenv in
+        let v1 = eval e1 in
+        let v2 = eval e2 in
         (match binop with
         | Add -> (match v1, v2 with VInt n1, VInt n2 -> VInt (n1 + n2) | _ -> raise (Error "Expected integer values"))
         | Sub -> (match v1, v2 with VInt n1, VInt n2 -> VInt (n1 - n2) | _ -> raise (Error "Expected integer values"))
@@ -105,49 +137,58 @@ let exec_prog (p: program): unit =
 
       | Get m -> eval_mem_access m env lenv
 
-      | This -> (match lenv with Some obj -> obj | None -> raise (Error "Cannot use This outside of a method context"))
+      | This ->
+        (match !current_object with
+        | Some obj -> obj
+        | None -> raise (Error "Use of 'this' outside of object context"))
 
       | New c -> VObj { cls = c; fields = Hashtbl.create 8 }
 
       | NewCstr (class_name, args) ->
-        let obj = eval (New class_name) env lenv in
-        eval_call obj obj args env lenv
+        let obj = eval (New class_name) in
+        let evaluated_args = List.map (fun arg -> eval arg) args in
+        let result = eval_call obj "constructor" evaluated_args in
+        Printf.printf "Object after constructor: %s\n" (string_of_value result);  (* Debug Print *)
+        result
 
       | MethCall (obj, method_name, args) ->
-        let this = eval obj env lenv in
-        let obj_val = eval_call this this args env lenv in
+        let this = eval obj in
+        let evaluated_args = List.map (fun arg -> eval arg) args in
+        let obj_val = eval_call this method_name evaluated_args in
+        Printf.printf "Object after method call: %s\n" (string_of_value obj_val);  (* Debug Print *)
         (match obj_val with
         | VObj o -> VObj o
         | _ -> raise (Error "Method call did not return an object"))
 
     in
-
-    let rec exec (i: instr) env lenv = match i with
-      | Print e -> Printf.printf "%d\n" (evali e env lenv)
+  
+    let rec exec (i: instr)  = match i with
+      | Print e -> Printf.printf "%d\n" (evali e)
       | Set (mem_access, e) ->
-        let value = eval e env lenv in
+        let value = eval e in
         (match mem_access with
         | Var var_name -> Hashtbl.replace env var_name value
         | Field (obj, field_name) ->
-          let this = eval obj env lenv in
+          let this = eval obj in
           (match this with
-          | VObj o -> Hashtbl.replace o.fields field_name value
+          | VObj o -> 
+            Hashtbl.replace o.fields field_name value
+            (*Printf.printf "Object after field set: %s\n" (string_of_obj obj);*)  (* Debug Print *)
           | _ -> raise (Error "Field access on non-object type")))
       | If (e, seq1, seq2) ->
-        if evalb e env lenv then exec_seq seq1 env lenv else exec_seq seq2 env lenv
+        if evalb e then exec_seq seq1  else exec_seq seq2
       | While (e, seq) ->
-        while evalb e env lenv do
-          exec_seq seq env lenv
+        while evalb e do
+          exec_seq seq 
         done
       | Return e ->
-        raise (Return (eval e env lenv))
-      | Expr e -> ignore (eval e env lenv)
+        raise (Return (eval e))
+      | Expr e -> ignore (eval e)
 
-    and exec_seq s env lenv =
-      List.iter (fun i -> exec i env lenv) s
+    and exec_seq s =
+      List.iter exec s
     in
-
-    exec_seq p.main env lenv
+    exec_seq s
   in
-exec_seq p.main env None
-
+  
+    eval_seq p.main (Hashtbl.create 1)
